@@ -1,42 +1,63 @@
-import { NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
+
+export const runtime = "nodejs";
+
+type ReceiptItem = {
+  name: string;
+  quantity: number;
+  price: number;
+};
+
+type EmailRequestBody = {
+  email?: string;
+  customerName?: string;
+  items?: ReceiptItem[];
+  total?: number | string;
+  orderId?: string;
+};
 
 export async function POST(req: Request) {
   try {
-    const { email, customerName, items, total, orderId } = await req.json();
+    const { email, customerName, items = [], total = 0, orderId } = (await req.json()) as EmailRequestBody;
 
     if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    // Configure the transporter with environment variables
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      return NextResponse.json({ error: "Email service is not configured" }, { status: 500 });
+    }
+
     const transporter = nodemailer.createTransport({
-      service: 'gmail', // You can change this to another service or SMTP settings
+      service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
     });
 
-    // Create the items HTML list
-    const itemsHtml = items.map((item: any) => `
+    const itemsHtml = items
+      .map(
+        (item) => `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #ddd;">${item.name} x${item.quantity}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">₹${item.price * item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">₹${Number(item.price) * Number(item.quantity)}</td>
       </tr>
-    `).join('');
+    `
+      )
+      .join("");
 
-    // Define the email content
     const mailOptions = {
       from: `"The Owl Cafe" <${process.env.EMAIL_USER}>`,
       to: email,
-      bcc: process.env.EMAIL_USER, // Admin receives a copy of the invoice
-      subject: `Your Receipt from The Owl Cafe (Order #${orderId || 'NEW'})`,
+      bcc: process.env.EMAIL_USER,
+      subject: `Your Receipt from The Owl Cafe (Order #${orderId || "NEW"})`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
           <div style="text-align: center; margin-bottom: 20px;">
             <h1 style="color: #f26b21; margin: 0;">The Owl Cafe</h1>
-            <p style="color: #666;">Thank you for your visit, ${customerName || 'Customer'}!</p>
+            <p style="color: #666;">Thank you for your visit, ${customerName || "Customer"}!</p>
           </div>
           
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -52,7 +73,7 @@ export async function POST(req: Request) {
             <tfoot>
               <tr>
                 <td style="padding: 10px; font-weight: bold; text-align: right;">Total</td>
-                <td style="padding: 10px; font-weight: bold; text-align: right;">₹${total}</td>
+                <td style="padding: 10px; font-weight: bold; text-align: right;">₹${Number(total).toFixed(2)}</td>
               </tr>
             </tfoot>
           </table>
@@ -65,12 +86,12 @@ export async function POST(req: Request) {
       `,
     };
 
-    // Send the email
     await transporter.sendMail(mailOptions);
 
-    return NextResponse.json({ success: true, message: 'Email sent successfully' }, { status: 200 });
-  } catch (error: any) {
-    console.error('Email error:', error);
-    return NextResponse.json({ error: 'Failed to send email', details: error.message }, { status: 500 });
+    return NextResponse.json({ success: true, message: "Email sent successfully" }, { status: 200 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Email error:", error);
+    return NextResponse.json({ error: "Failed to send email", details: message }, { status: 500 });
   }
 }

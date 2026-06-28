@@ -83,7 +83,7 @@ export default function SettingsPage() {
                 <Card className="glass-panel border-none shadow-sm">
                   <CardHeader>
                     <CardTitle className="text-xl text-[var(--color-primary)]">Store Details</CardTitle>
-                    <CardDescription>Update your cafe's public information.</CardDescription>
+                    <CardDescription>Update your cafe&apos;s public information.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">

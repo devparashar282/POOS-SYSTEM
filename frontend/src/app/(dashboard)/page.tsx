@@ -1,46 +1,35 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { 
-  IndianRupee, 
-  ShoppingCart, 
-  Banknote, 
-  QrCode, 
-  TrendingUp, 
-  Clock 
-} from "lucide-react";
+import { IndianRupee, ShoppingCart, Banknote, QrCode, TrendingUp, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
   LineChart,
-  Line
+  Line,
 } from "recharts";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
 import { useAppStore } from "@/store/appStore";
 
 const COLORS = ["#f26b21", "#5c3a21", "#22c55e"];
 
 export default function DashboardHome() {
-  const orders = useAppStore(state => state.orders);
+  const orders = useAppStore((state) => state.orders);
 
-  // Compute live data
   const today = new Date().toLocaleDateString();
-  const todaysOrders = orders.filter(o => o.date.includes(today));
-  
+  const todaysOrders = orders.filter((o) => o.date.includes(today));
+
   const todaysSales = todaysOrders.reduce((sum, o) => sum + o.amount, 0);
-  const cashCollection = todaysOrders.filter(o => o.method === "Cash").reduce((sum, o) => sum + o.amount, 0);
-  const upiCollection = todaysOrders.filter(o => o.method.includes("QR") || o.method.includes("UPI")).reduce((sum, o) => sum + o.amount, 0);
-  const avgBill = todaysOrders.length > 0 ? (todaysSales / todaysOrders.length) : 0;
+  const cashCollection = todaysOrders.filter((o) => o.method === "Cash").reduce((sum, o) => sum + o.amount, 0);
+  const upiCollection = todaysOrders.filter((o) => o.method.includes("QR") || o.method.includes("UPI")).reduce((sum, o) => sum + o.amount, 0);
+  const avgBill = todaysOrders.length > 0 ? todaysSales / todaysOrders.length : 0;
 
   const kpiData = [
     { title: "Today's Sales", value: `₹${todaysSales.toFixed(2)}`, icon: IndianRupee, trend: "+0%", positive: true, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30", border: "hover:border-blue-500" },
@@ -54,7 +43,7 @@ export default function DashboardHome() {
   const paymentData = [
     { name: "UPI / QR", value: upiCollection > 0 ? upiCollection : 1 },
     { name: "Cash", value: cashCollection },
-  ].filter(p => p.value > 0);
+  ].filter((p) => p.value > 0);
 
   const recentOrders = orders.slice(0, 5);
 
@@ -74,7 +63,7 @@ export default function DashboardHome() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Dashboard Overview</h1>
         <p className="text-sm text-[var(--color-muted-foreground)]">
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          {new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
         </p>
       </div>
 
@@ -88,18 +77,14 @@ export default function DashboardHome() {
           >
             <Card className={`${kpi.border} transition-all duration-300 h-full flex flex-col justify-between shadow-sm hover:shadow-md border-2`}>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs lg:text-sm font-bold text-[var(--color-foreground)] line-clamp-1">
-                  {kpi.title}
-                </CardTitle>
+                <CardTitle className="text-xs lg:text-sm font-bold text-[var(--color-foreground)] line-clamp-1">{kpi.title}</CardTitle>
                 <div className={`h-10 w-10 rounded-xl ${kpi.bg} flex items-center justify-center shrink-0`}>
                   <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
                 </div>
               </CardHeader>
               <CardContent>
                 <div className={`text-xl lg:text-2xl font-black truncate ${kpi.color}`}>{kpi.value}</div>
-                <p className={`text-xs mt-1 font-bold ${kpi.positive ? 'text-green-500' : 'text-red-500'}`}>
-                  {kpi.trend} from yesterday
-                </p>
+                <p className={`text-xs mt-1 font-bold ${kpi.positive ? "text-green-500" : "text-red-500"}`}>{kpi.trend} from yesterday</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -109,41 +94,41 @@ export default function DashboardHome() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Today's Sales Trend</CardTitle>
+            <CardTitle>Today&apos;s Sales Trend</CardTitle>
           </CardHeader>
           <CardContent className="pl-0">
             <div className="h-[250px] w-full mt-4">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={salesData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
-                  <XAxis 
-                    dataKey="time" 
-                    stroke="var(--color-foreground)" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false} 
+                  <XAxis
+                    dataKey="time"
+                    stroke="var(--color-foreground)"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
                     padding={{ left: 20, right: 20 }}
                     fontWeight="bold"
                   />
-                  <YAxis 
-                    stroke="var(--color-foreground)" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false} 
-                    tickFormatter={(value) => `₹${value}`} 
+                  <YAxis
+                    stroke="var(--color-foreground)"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => `₹${value}`}
                     fontWeight="bold"
                   />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)', borderRadius: '8px' }}
-                    itemStyle={{ color: 'var(--color-foreground)' }}
+                  <Tooltip
+                    contentStyle={{ backgroundColor: "var(--color-card)", borderColor: "var(--color-border)", borderRadius: "8px" }}
+                    itemStyle={{ color: "var(--color-foreground)" }}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="sales" 
-                    stroke="var(--color-accent)" 
+                  <Line
+                    type="monotone"
+                    dataKey="sales"
+                    stroke="var(--color-accent)"
                     strokeWidth={3}
-                    dot={{ r: 4, fill: 'var(--color-accent)', strokeWidth: 0 }}
-                    activeDot={{ r: 6, fill: 'var(--color-primary)' }}
+                    dot={{ r: 4, fill: "var(--color-accent)", strokeWidth: 0 }}
+                    activeDot={{ r: 6, fill: "var(--color-primary)" }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -159,22 +144,14 @@ export default function DashboardHome() {
             <div className="h-[250px] w-full flex flex-col items-center justify-center">
               <ResponsiveContainer width="100%" height="80%">
                 <PieChart>
-                  <Pie
-                    data={paymentData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
+                  <Pie data={paymentData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                     {paymentData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)', borderRadius: '8px' }}
-                    itemStyle={{ color: 'var(--color-foreground)' }}
+                  <Tooltip
+                    contentStyle={{ backgroundColor: "var(--color-card)", borderColor: "var(--color-border)", borderRadius: "8px" }}
+                    itemStyle={{ color: "var(--color-foreground)" }}
                   />
                 </PieChart>
               </ResponsiveContainer>

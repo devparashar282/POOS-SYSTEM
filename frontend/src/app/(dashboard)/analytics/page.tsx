@@ -1,17 +1,29 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell } from "recharts";
+import {
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 import { useAppStore } from "@/store/appStore";
 
 const COLORS = ["#f26b21", "#5c3a21", "#e05c19", "#d4a373"];
 
 export default function AnalyticsPage() {
-  const orders = useAppStore(state => state.orders);
-  const customers = useAppStore(state => state.customers);
+  const orders = useAppStore((state) => state.orders);
+  const customers = useAppStore((state) => state.customers);
 
-  // Compute Monthly Revenue (Simplified to today for demo purposes since we don't have old data)
-  const today = new Date().toLocaleDateString('default', { month: 'short' });
+  const today = new Date().toLocaleDateString("default", { month: "short" });
   const todaysSales = orders.reduce((sum, o) => sum + o.amount, 0);
   const monthlyRevenue = [
     { name: "Jan", total: 0 },
@@ -33,20 +45,21 @@ export default function AnalyticsPage() {
     { name: today, users: customers.length },
   ];
 
-  // Compute Categories dynamically from cart items
   const categoryMap: Record<string, number> = {};
-  orders.forEach(order => {
-    order.cartItems?.forEach(item => {
-      categoryMap[item.category] = (categoryMap[item.category] || 0) + (item.price * item.quantity);
+  orders.forEach((order) => {
+    order.cartItems?.forEach((item) => {
+      categoryMap[item.category] = (categoryMap[item.category] || 0) + item.price * item.quantity;
     });
   });
 
-  const topCategories = Object.keys(categoryMap).map(key => ({
-    name: key,
-    value: categoryMap[key]
-  })).sort((a, b) => b.value - a.value).slice(0, 4);
+  const topCategories = Object.keys(categoryMap)
+    .map((key) => ({
+      name: key,
+      value: categoryMap[key],
+    }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 4);
 
-  // Fallback for pie chart if empty
   if (topCategories.length === 0) {
     topCategories.push({ name: "No Sales", value: 1 });
   }
@@ -55,11 +68,10 @@ export default function AnalyticsPage() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-[var(--color-primary)]">Analytics & Reports</h1>
-        <p className="text-[var(--color-muted-foreground)]">Deep dive into your cafe's performance</p>
+        <p className="text-[var(--color-muted-foreground)]">Deep dive into your cafe&apos;s performance</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Monthly Revenue Chart */}
         <Card className="glass-panel border-none shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-[var(--color-primary)]">Monthly Revenue (Last 7 Months)</CardTitle>
@@ -70,8 +82,8 @@ export default function AnalyticsPage() {
                 <AreaChart data={monthlyRevenue} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#f26b21" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#f26b21" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#f26b21" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#f26b21" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
@@ -84,7 +96,6 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        {/* Top Categories Pie Chart */}
         <Card className="glass-panel border-none shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-[var(--color-primary)]">Sales by Category</CardTitle>
@@ -93,15 +104,7 @@ export default function AnalyticsPage() {
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={topCategories}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={80}
-                    outerRadius={110}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
+                  <Pie data={topCategories} cx="50%" cy="50%" innerRadius={80} outerRadius={110} paddingAngle={5} dataKey="value">
                     {topCategories.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
@@ -121,7 +124,6 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        {/* Customer Growth Line Chart */}
         <Card className="glass-panel border-none shadow-sm lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-[var(--color-primary)]">New Customer Growth (This Month)</CardTitle>

@@ -9,13 +9,11 @@ import {
   LayoutDashboard, 
   ShoppingCart, 
   Package, 
-  Tags, 
   FileText, 
   Users, 
   BarChart3, 
   Settings, 
   LogOut,
-  Coffee,
   Menu,
   X,
   Bell
