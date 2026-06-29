@@ -12,14 +12,23 @@ import { Coffee, Mail, Lock } from "lucide-react";
 export default function LoginPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setIsSubmitting(true);
-    // Simulate login
+    
+    // Simulate login API delay
     setTimeout(() => {
       setIsSubmitting(false);
-      router.push("/");
+      if (email === "admin@gmail.com" && password === "admin@2289") {
+        router.push("/");
+      } else {
+        setError("Invalid email or password");
+      }
     }, 1000);
   };
 
@@ -50,7 +59,15 @@ export default function LoginPage() {
                   <Label htmlFor="email">Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-2.5 h-5 w-5 text-[var(--color-muted-foreground)]" />
-                    <Input id="email" type="email" placeholder="admin@theowlcafe.com" required className="pl-10" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="admin@gmail.com" 
+                      required 
+                      className="pl-10" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -60,9 +77,22 @@ export default function LoginPage() {
                   </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-2.5 h-5 w-5 text-[var(--color-muted-foreground)]" />
-                    <Input id="password" type="password" placeholder="••••••••" required className="pl-10" />
+                    <Input 
+                      id="password" 
+                      type="password" 
+                      placeholder="••••••••" 
+                      required 
+                      className="pl-10"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
                   </div>
                 </div>
+                {error && (
+                  <p className="text-sm font-medium text-red-500 bg-red-50 p-2 rounded-md border border-red-100">
+                    {error}
+                  </p>
+                )}
                 <div className="flex items-center space-x-2">
                   <input type="checkbox" id="remember" className="rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]" />
                   <Label htmlFor="remember" className="font-normal cursor-pointer">Remember me for 30 days</Label>
